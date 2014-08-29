@@ -4,6 +4,13 @@ This is an OpenCL version of the Large Eddy Simulator developed by Hiromasa Naka
 
 **NOTE:** This is _not_ the original Fortran-77 source code used in the included papers, but a Fortran-95 version where the complete time iteration loop is implemented in OpenCL. The papers are included to explain the physics behind the simulator.
 
+## Caveats
+
+- At the moment the only way to configure the simulator is to edit the code.
+- Also, the OpenCL code is entirely fixed, in terms of numbers of threads and compile time options. You can only change it by hacking the OpenCL kernel code in `OpenC/Kernels` and the OpenCL interfacing module, `module_LES_combined.f95` in `F95Sources`. 
+
+I will release the code generator for creating custom configurations soon, as part of a tool chain for facilitating conversion of Fortran code to OpenCL.
+
 ## Prerequisites
 
 To compile and run this code, you need to install the OclWrapper library from https://github.com/wimvanderbauwhede/OpenCLIntegration
@@ -20,22 +27,40 @@ You also need:
 
 Assuming you have installed the OclWrapper library correctly, compilation is simply:
 
-    $ cd Sources
+    $ cd F95Sources
     $ scons
+
+You can configure the device and platform, e.g. to explicitly select the GPU with id 1:
+
+    $ scons plat=NVIDIA dev=GPU gpu=1
+
+or to select the Xeon Phi with id 0:
+
+    $ scons plat=MIC dev=ACC acc=0
+
+To compile the Fortran-95 code without OpenCL for comparison:
+
+    $ cd F95Sources
+    $ scons ocl=0
 
 To compile the Fortran-95 code without the OclWrapper library,
 
-    $ cd Sources
+    $ cd F95Sources
     $ scons -f SConstruct.F95_only
+
+## Running
+
+The OpenCL code:
+
+    $ ./les_main_ocl
+
+The Fortran-only code:
+
+    $ ./les_main   
 
 ## Performance
 
 I've tested this on a GeForce GTX 480 and a 12-core Intel Xeon, the OpenCL code is 7x faster on the GPU and 2x faster on the multicore CPU compared to the fastest compilation I could achieve, which was using the Intel Fortran compiler using auto-vectorisation and auto-parallelisation.
-
-## Caveats
-
-- At the moment the only way to configure the simulator is to edit the code.
-- Also, the OpenCL code is entirely fixed, in terms of numbers of threads and compile time options. I will release the code generator for creating custom configurations soon.
 
 ## Copyright and License
 
