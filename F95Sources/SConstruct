@@ -1,0 +1,115 @@
+import os
+import commands
+import glob
+
+# Importing OclBuilder, this is not required for ocl=0
+# If you want to build just the Fortran code without OpenCL support, use SConstruct.F95_only
+import OclBuilder
+from OclBuilder import initOcl
+
+# Adding path to includes for kernels
+CWD= os.environ['PWD']
+OclBuilder.kopts='-cl-mad-enable -cl-fast-relaxed-math -I'+CWD+'/../OpenCL/Kernels/'
+
+from OclBuilder import getOpt
+OclBuilder.opts=Variables()
+envF=Environment(useF=1)
+
+# Then build the rest of the code
+
+WITH_OCL=''
+with_ocl= getOpt('ocl','Use OpenCL','1')
+if with_ocl == '1':
+    WITH_OCL = '-D_OPENCL_LES_WV'
+    envF=initOcl(envF)
+    kernel_opts = envF['KERNEL_OPTS'] 
+else:
+    envF['F95']=os.environ['FC']
+    envF['LINK']=os.environ['FC']
+    verbose = getOpt('v','Verbose','1')
+    VERBOSE = '-DVERBOSE'
+    if verbose == '0':
+        VERBOSE = ''
+    other = getOpt('D','Other macro','')
+    TIMINGS=''
+    if other !='':
+        TIMINGS = '-D'+other
+        
+NO_FILE_IO='-DNO_FILE_IO'
+ICAL = '-DICAL=0'
+IFBF='-DIFBF=1'
+IANIME='-DIANIME=0'
+IADAM='-DIADAM=0'
+
+
+FFLAGS  = [ WITH_OCL,  NO_FILE_IO, ICAL, IFBF,IANIME, IADAM] 
+
+if with_ocl == '0':
+    FFLAGS += ['-cpp','-Ofast', '-m64', '-Wall','-ffree-form', '-fconvert=big-endian', VERBOSE,TIMINGS]
+    
+    
+csources=[]
+if os.path.exists('./noop.c'):
+    csources=['./noop.c']
+
+envC=Environment(CC='gcc')
+if csources:
+    envC.Library('csubs',csources)
+
+fsources = ['./anime.f95','./aveflow.f95','./bondFG.f95','./bondv1.f95','./boundp.f95','./boundsm.f95','./vel2.f95','./velFG.f95','./feedbf.f95','./feedbfm.f95','./les.f95','./grid.f95','./ifdata.f95','./init.f95','./main.f95','./set.f95','./timdata.f95','./common_sn.f95','./params_common_sn.f95']
+
+ffsources=[]
+if with_ocl == '1':
+    ffsources = fsources + ['./module_LES_conversions.f95','./module_LES_combined_ocl.f95','./oclWrapper.o']
+else:
+    ffsources = fsources + ['./adam.f95','./press.f95','./velnw.f95']
+
+# Basically, it's Linux unless it's OS X
+if os.uname()[0] == "Darwin":
+        OSX=1
+        OSFLAG='-DOSX'
+else:       
+        OSX=0
+        OSFLAG='-D__LINUX__'
+
+if with_ocl == '1':        
+    # Linker flags for OclWrapper		 
+    OPENCL_DIR=os.environ['OPENCL_DIR']
+    OCL_LDFLAGS =  ['-L.','-L'+OPENCL_DIR+'/OpenCLIntegration']
+else:
+    OCL_LDFLAGS =  []
+
+if OSX == 1:
+# Assuming MacPorts
+    INCLPATH = ['/opt/local/include']
+    LIBPATH = '/opt/local/lib'
+else:    
+# test for devtoolset-2 ... so better use a var $DEVTOOLSETROOT?
+    if os.path.exists('/opt/rh/devtoolset-2'): 
+        INCLPATH = ['/opt/rh/devtoolset-2/root/usr/include' ]
+        LIBPATH = '/opt/rh/devtoolset-2/root/usr/lib'
+    else:
+# reasonable default ...
+        INCLPATH = ['/usr/local/include' ]
+        LIBPATH = '/usr/local/lib'
+#INCLPATH += ['../OpenCL','../OpenCL/Wrappers']
+
+envF.Append(F95FLAGS=FFLAGS)
+envF.Append(F95PATH=['.',INCLPATH])
+envF.Append(LIBPATH=['.',LIBPATH])
+if OSX != 1:
+    envF.Append(LIBS=['m'])
+
+ocl_ext=''
+if with_ocl == '1': 
+    envF.Append(LIBS=['OclWrapperF','stdc++','OclWrapper'])
+    ocl_ext='_ocl'
+    if OSX==1:
+            envF.Append(FRAMEWORKS=['OpenCL'])
+    else:
+            envF.Append(LIBS=['OpenCL'])   
+
+if csources:
+    envF.Append(LIBS=['csubs'])
+prog = envF.Program('les_main'+ocl_ext,ffsources)
+
