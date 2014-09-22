@@ -109,7 +109,7 @@ contains
 !
         if (sor < pjuge) goto 510                         !Break
       end do
-  510 call noop
+  510 continue
 
       pav = 0.0
       pco = 0.0

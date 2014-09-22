@@ -1,4 +1,4 @@
-Module module_les
+module module_les
 
       use module_boundsm ! add_module_decls() line 156
 contains

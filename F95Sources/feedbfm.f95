@@ -28,9 +28,9 @@ contains
       end do
       end do
       end do
-!      print *, 'open ../GIS/Tokyo_20mgrid.txt'
+!      print *, 'open GIS/Tokyo_20mgrid.txt'
 ! WV: the problem with this is that this input file expects the grid to be 150 x 150, because otherwise zbm segfaults!
-      open(70,file='../GIS/Tokyo_20mgrid.txt', form='formatted',status='unknown')
+      open(70,file='GIS/Tokyo_20mgrid.txt', form='formatted',status='unknown')
       do j = 100,1,-1
         do i = 1,100
           read(70,*) zbm(i+25,j+25) 

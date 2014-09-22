@@ -3,6 +3,7 @@
 This is an OpenCL version of the Large Eddy Simulator developed by Hiromasa Nakayama and  Haruyasu Nagai at the Japan Atomic Energy Agency and Prof. Tetsuya Takemi at the Disaster Prevention Research Institute of Kyoto University.
 
 **NOTE:** This is _not_ the original Fortran-77 source code used in the included papers, but a Fortran-95 version where the complete time iteration loop is implemented in OpenCL. The papers are included to explain the physics behind the simulator.
+**NOTE:** The included file `F95Sources/GIS/Tokyo_20mgrid.txt` does _not_ contain the actual GIS data for Tokyo, but randomised values in the same range.
 
 ## Caveats
 

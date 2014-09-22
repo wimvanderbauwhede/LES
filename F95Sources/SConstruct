@@ -1,6 +1,4 @@
 import os
-import commands
-import glob
 
 # Importing OclBuilder, this is not required for ocl=0
 # If you want to build just the Fortran code without OpenCL support, use SConstruct.F95_only
@@ -49,10 +47,8 @@ if with_ocl == '0':
     
     
 csources=[]
-if os.path.exists('./noop.c'):
-    csources=['./noop.c']
-
-envC=Environment(CC='gcc')
+CC= os.environ['CC']
+envC=Environment(CC=CC)
 if csources:
     envC.Library('csubs',csources)
 

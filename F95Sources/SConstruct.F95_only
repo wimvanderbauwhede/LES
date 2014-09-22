@@ -1,14 +1,5 @@
 import os
 FC=os.environ.get('FC')
-CC=os.environ.get('CC')
-
-csources=[]
-if os.path.exists('./noop.c'):
-    csources=['./noop.c']
-
-envC=Environment(CC=CC)
-if csources:
-    envC.Library('noopc',csources)
 
 fsources = ['./adam.f95','./anime.f95','./aveflow.f95','./bondFG.f95','./bondv1.f95','./boundp.f95','./boundsm.f95','./feedbf.f95','./feedbfm.f95','./grid.f95','./ifdata.f95','./init.f95','./les.f95','./main.f95','./press.f95','./set.f95','./timdata.f95','./vel2.f95','./velFG.f95','./velnw.f95','common_sn.f95','params_common_sn.f95'] 
 
@@ -34,7 +25,4 @@ LDFLAGS= [] # '-fopenmp']
 #FFLAGS  = ['-O3','-fast', '-Mvect=simd:256'] 
 envF=Environment(F95=FC,LINK=FC,LINKFLAGS=LDFLAGS,F95FLAGS=FFLAGS,F95PATH=['.','/opt/local/include','/usr/local/include'])
 
-if csources:
-    envF.Program('les_main',fsources,LIBS=['noopc','m'],LIBPATH=['.','/opt/local/lib','/usr/local/lib'])
-else:
-    envF.Program('les_main',fsources,LIBS=['m'],LIBPATH=['.','/opt/local/lib','/usr/local/lib'])
+envF.Program('les_main',fsources,LIBS=['m'],LIBPATH=['.','/opt/local/lib','/usr/local/lib'])
