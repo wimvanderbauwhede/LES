@@ -122,6 +122,7 @@
         integer :: n0
         integer :: n1
         integer :: nmax
+        integer :: i,j,k
         real(kind=4), dimension(-1:ip+2,0:jp+2,0:kp+2)  :: nou1
         real(kind=4), dimension(0:ip+2,0:jp+2,0:kp+2)  :: nou2
         real(kind=4), dimension(0:ip+2,0:jp+2,0:kp+2)  :: nou3
@@ -260,7 +261,20 @@
 #if IANIME == 1
         call anime(n,n0,nmax,km,jm,im,dxl,dx1,dyl,dy1,z2,data22,data23,u,w,v,amask1)
 #endif
-!
+! dimension(0:ip+2,0:jp+2,0:kp+1)
+        if (n == nmax/2) then
+            print *, "# Values for pressure array p"
+            print *, "# i = ",im
+            print *, "# j = ",jm
+            print *, "# k = ",km
+            do k = 1,km
+            do j = 1,jm
+            do i = 1,im
+                print *, p(i,j,k)
+            end do
+            end do
+            end do
+        end if
       end do
 
 #ifdef TIMINGS

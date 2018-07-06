@@ -173,9 +173,11 @@ contains
 #endif
       if(mod(n,1000) == 0.or.n == nmax) then
         nn = n/1000
+#ifdef VERBOSE        
         print *, 'timestep: ',nn,' pressure at centre: ',p(ip/2,jp/2,kp/2), &
                 'vel at centre: ', &
                 u(ip/2,jp/2,kp/2),v(ip/2,jp/2,kp/2),w(ip/2,jp/2,kp/2)
+#endif                
 #ifdef USE_NETCDF_OUTPUT
         call write_to_netcdf_file(p,u,v,w,usum,vsum,wsum,nn)
 #endif
